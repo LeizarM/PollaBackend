@@ -134,3 +134,36 @@ exports.noSeeBets = async( req, res ) => {
     }
 
 }
+
+
+
+exports.verifyPassword = async (req, res) => {
+    const { codUsuario, currentPassword } = req.body;
+  
+    try {
+      
+      const result = await sql.query`execute p_list_usuario @codUsuario=${codUsuario}, @contrasena=${currentPassword}, @ACCION='B'`;
+  
+      const isValid = result.recordset.length > 0 ? result.recordset[0].isValid : 0;
+      console.log({ isValid });
+      res.json({ isValid });
+    } catch (err) {
+      console.error('Error al verificar la contraseña actual:', err);
+      res.status(500).send('Error en el servidor');
+    }
+  };
+  
+
+
+
+  exports.changePassword = async (req, res) => {
+    const { codUsuario, newPassword } = req.body;
+    try {
+      
+      await sql.query`execute p_abm_usuario @codUsuario=${codUsuario}, @nuevaContrasena=${newPassword}, @ACCION='B'`;
+      res.send('Contraseña cambiada con éxito');
+    } catch (err) {
+      console.error('Error al cambiar la contraseña:', err);
+      res.status(500).send('Error en el servidor');
+    }
+  };
